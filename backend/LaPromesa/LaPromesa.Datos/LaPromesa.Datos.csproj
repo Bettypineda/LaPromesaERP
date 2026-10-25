@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.*" />
+    <!-- Fuerza la versión corregida de una dependencia indirecta de SqlClient (avisos NU1902/NU1903) -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LaPromesa.Entidades\LaPromesa.Entidades.csproj" />
+    <ProjectReference Include="..\LaPromesa.Utilidades\LaPromesa.Utilidades.csproj" />
+  </ItemGroup>
+
+</Project>

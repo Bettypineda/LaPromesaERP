@@ -1,0 +1,18 @@
+sequenceDiagram
+  autonumber
+  actor U as Usuario
+  participant F as Frontend (Axios)
+  participant API as LaPromesa.API
+  participant BD as seg.Usuarios / seg.RefreshTokens
+  U->>F: usuario + contraseña
+  F->>API: POST /api/Autenticacion/IniciarSesion
+  API->>BD: valida hash BCrypt, intentos fallidos (bloqueo a los 5)
+  API-->>F: accessToken (15 min) + refreshToken (7 días)
+  F->>API: peticiones con Authorization: Bearer
+  API-->>F: 401 cuando el access token vence
+  F->>API: POST /api/Autenticacion/RenovarToken (refresh)
+  API->>BD: revoca el refresh usado y emite uno nuevo (rotación)
+  API-->>F: tokens nuevos → se repite la petición
+  U->>F: Cerrar sesión
+  F->>API: POST /api/Autenticacion/CerrarSesion
+  API->>BD: refresh token revocado (ya no sirve)

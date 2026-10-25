@@ -1,0 +1,35 @@
+# Variables y secretos
+.env
+*.env
+!.env.example
+appsettings.Development.json
+appsettings.*.local.json
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+
+# Node / React
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+*.log
+_to_delete/
+
+# Datos locales del banco simulado
+backend/**/datos/
+
+# Entornos locales de Postman (contienen la contraseña demo)
+*.local.postman_environment.json

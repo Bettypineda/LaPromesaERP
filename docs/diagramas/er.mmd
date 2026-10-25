@@ -1,0 +1,99 @@
+erDiagram
+  CategoriasProveedor ||--o{ Proveedores : clasifica
+  Proveedores ||--o{ OrdenesCompra : recibe
+  Bodegas ||--o{ OrdenesCompra : destino
+  OrdenesCompra ||--|{ OrdenesCompraDetalle : contiene
+  Productos ||--o{ OrdenesCompraDetalle : pedido
+  OrdenesCompra ||--o{ OrdenesCompraHistorial : registra
+  OrdenesCompra ||--o{ Recepciones : "se recibe en"
+  Recepciones ||--|{ RecepcionesDetalle : contiene
+  OrdenesCompraDetalle ||--o{ RecepcionesDetalle : "se recibe"
+  Recepciones ||--|| CuentasPorPagar : genera
+  Proveedores ||--o{ CuentasPorPagar : adeuda
+  CuentasPorPagar ||--o{ PagosProveedor : "se paga con"
+  Productos ||--o{ Existencias : "stock por bodega"
+  Bodegas ||--o{ Existencias : guarda
+  CategoriasProveedor {
+    int IdCategoria PK
+    nvarchar Nombre UK
+    bit Activo
+  }
+  Proveedores {
+    int IdProveedor PK
+    varchar Codigo UK "PR###"
+    varchar Nit UK "módulo 11"
+    int IdCategoria FK
+    varchar TipoPago "Contado | Credito"
+    int DiasCredito
+    decimal LimiteCredito
+    varchar Estado "Activo | Inactivo"
+    nvarchar MotivoInactivacion
+    rowversion RowVersion
+  }
+  OrdenesCompra {
+    int IdOrdenCompra PK
+    varchar Numero UK "OC-######"
+    int IdProveedor FK
+    int IdBodega FK
+    date FechaEsperada
+    decimal Total "calculado por trigger"
+    varchar Estado "Pendiente…Anulada"
+    nvarchar AprobadoPor
+    rowversion RowVersion
+  }
+  OrdenesCompraDetalle {
+    int IdDetalle PK
+    int IdOrdenCompra FK
+    int IdProducto FK
+    decimal CantidadPedida
+    decimal CantidadRecibida
+    decimal CostoUnitario
+  }
+  OrdenesCompraHistorial {
+    bigint IdHistorial PK
+    int IdOrdenCompra FK
+    varchar EstadoNuevo
+    nvarchar Usuario
+  }
+  Recepciones {
+    int IdRecepcion PK
+    varchar Numero UK "RC-######"
+    int IdOrdenCompra FK
+    varchar NumeroFactura "único por proveedor"
+    varchar Cumplimiento "ATiempo | Retraso | Anticipada"
+  }
+  RecepcionesDetalle {
+    int IdRecepcionDetalle PK
+    int IdRecepcion FK
+    int IdDetalleOrden FK
+    decimal Cantidad
+  }
+  CuentasPorPagar {
+    int IdCuentaPagar PK
+    varchar Numero UK "CP-######"
+    int IdRecepcion FK "UK"
+    date FechaVencimiento
+    decimal Monto
+    decimal Saldo
+    varchar Estado "Pendiente | Parcial | Pagada"
+  }
+  PagosProveedor {
+    int IdPago PK
+    uniqueidentifier OperacionId UK
+    int IdCuentaPagar FK
+    decimal Monto
+    varchar Metodo "Transferencia | Cheque | Efectivo"
+    varchar Estado "Pendiente | Aprobado | Rechazado"
+    varchar ReferenciaBanco
+  }
+  Bodegas {
+    int IdBodega PK "inv (temporal)"
+  }
+  Productos {
+    int IdProducto PK "inv (temporal)"
+  }
+  Existencias {
+    int IdProducto FK
+    int IdBodega FK
+    decimal Cantidad
+  }

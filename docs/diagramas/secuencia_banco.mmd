@@ -1,0 +1,21 @@
+sequenceDiagram
+  autonumber
+  actor T as Tesorería (frontend)
+  participant API as LaPromesa.API
+  participant BD as SQL Server
+  participant BK as BancoSimulado.API
+  T->>API: POST /api/CuentasPorPagar/PagarCuentaPorPagar<br/>{idCuentaPagar, operacionId, monto, metodo}
+  API->>BD: compras.sp_Pago_Iniciar (estado Pendiente)
+  Note over BD: valida saldo disponible y<br/>operacionId único (idempotencia)
+  API->>BK: POST /api/v1/transferencias + X-Api-Key
+  alt APROBADA
+    BK-->>API: 200 {estado: APROBADA, autorizacion: SIM-…}
+    API->>BD: sp_Pago_Confirmar → Aprobado, baja el saldo
+  else RECHAZADA (monto > límite, cuenta inexistente)
+    BK-->>API: 200 {estado: RECHAZADA, mensaje}
+    API->>BD: sp_Pago_Confirmar → Rechazado, saldo intacto
+  else Banco caído / tiempo agotado
+    BK--xAPI: 503 o timeout (10 s)
+    API->>BD: sp_Pago_RegistrarIntento → sigue Pendiente (reintento con el mismo operacionId)
+  end
+  API-->>T: RespuestaApi con el pago y su estado

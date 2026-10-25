@@ -1,0 +1,61 @@
+.login {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(340px, 5fr) 7fr;
+  background: var(--papel);
+}
+
+.login-relato {
+  background: var(--anil);
+  color: #d7ddf0;
+  padding: 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+/* Trazo de maíz: la línea del proceso que recorre la columna */
+.login-relato::after {
+  content: '';
+  position: absolute;
+  left: calc(3rem + 21px);
+  top: 46%;
+  bottom: 22%;
+  width: 2px;
+  background: linear-gradient(var(--maiz), rgba(227, 167, 47, 0));
+}
+.login-relato-cuerpo h2 {
+  color: #fff;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  font-weight: 750;
+  line-height: 1.08;
+  max-width: 14ch;
+  margin-bottom: 2.2rem;
+}
+.login-pasos { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.35rem; position: relative; z-index: 1; }
+.login-pasos li { display: flex; align-items: center; gap: 1rem; font-size: 1.02rem; }
+.login-paso-icono {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; flex-shrink: 0;
+  background: var(--anil-2); border: 2px solid var(--maiz); color: var(--maiz); font-size: 1.1rem;
+}
+.login-relato-pie { font-size: 0.85rem; color: #8b97c2; margin: 0; }
+
+.login-formulario { display: grid; place-items: center; padding: 2rem 1.25rem; }
+.login-caja { width: 100%; max-width: 400px; }
+.login-caja h1 { font-size: 2rem; font-weight: 750; margin-bottom: 0.25rem; }
+.login-caja > .texto-suave { margin-bottom: 1.75rem; }
+.login-marca-movil { display: none; margin-bottom: 2rem; }
+.login-nota { font-size: 0.82rem; color: var(--suave); margin: 1rem 0 0; text-align: center; }
+
+.login-demo { margin-top: 1.75rem; border-top: 1px solid var(--linea); padding-top: 1rem; font-size: 0.86rem; }
+.login-demo summary { color: var(--anil-3); font-weight: 600; cursor: pointer; }
+.login-demo-lista { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0 0.5rem; }
+.login-demo small { color: var(--suave); }
+
+@media (max-width: 860px) {
+  .login { grid-template-columns: 1fr; }
+  .login-relato { display: none; }
+  .login-marca-movil { display: block; }
+}

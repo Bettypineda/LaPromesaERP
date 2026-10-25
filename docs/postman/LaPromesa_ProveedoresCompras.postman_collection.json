@@ -1,0 +1,4044 @@
+{
+  "info": {
+    "_postman_id": "f42313d0-52c4-490a-a848-1cfae3af5aa6",
+    "name": "La Promesa ERP - Proveedores y Compras",
+    "description": "Pruebas de la API (Sara). Ejecutar en orden con el Runner. Requiere el entorno 'La Promesa ERP - Local' con baseUrl y demoPassword.\nCubre: autenticación JWT/refresh, roles, CRUD de Proveedores y Órdenes de compra, proceso de recepción → inventario → cuenta por pagar, pagos con la API bancaria externa (idempotencia) y los 3 reportes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Autenticación y roles",
+      "item": [
+        {
+          "name": "Iniciar sesión - admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenAdmin\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenAdmin\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - sara.compras",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"sara.compras\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenCompras\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenCompras\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - gerente.general",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"gerente.general\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenGerente\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenGerente\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - bodega.central",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"bodega.central\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenBodega\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenBodega\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - tesoreria",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"tesoreria\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenTesoreria\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenTesoreria\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - consulta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"consulta\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenConsulta\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenConsulta\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con contraseña incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"consulta\",\n  \"contrasena\": \"incorrecta123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con datos vacíos (400 validación)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"\",\n  \"contrasena\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Usuario actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/UsuarioActual",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "UsuarioActual"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Usuario admin\", () => pm.expect((pm.response.json().datos || {}).usuario).to.eql(\"admin\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/ConsultarProveedores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "ConsultarProveedores"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Renovar token (rotación)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/RenovarToken",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "RenovarToken"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_tokenAdmin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"refreshViejo\", pm.collectionVariables.get(\"refresh_tokenAdmin\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenAdmin\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenAdmin\", d.refreshToken);",
+                  "pm.test(\"Refresh nuevo distinto al anterior\", () => pm.expect(d.refreshToken).to.not.eql(pm.collectionVariables.get(\"refreshViejo\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reusar refresh token ya rotado (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/RenovarToken",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "RenovarToken"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshViejo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Al reutilizar un refresh token revocado se cierran todas las sesiones del usuario (protección ante robo)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenAdmin\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenAdmin\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerrar sesión (consulta)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/CerrarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "CerrarSesion"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_tokenConsulta}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh después de cerrar sesión (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/RenovarToken",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "RenovarToken"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_tokenConsulta}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión - consulta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Autenticacion/IniciarSesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Autenticacion",
+                "IniciarSesion"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"consulta\",\n  \"contrasena\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"tokenConsulta\", d.accessToken);",
+                  "pm.collectionVariables.set(\"refresh_tokenConsulta\", d.refreshToken);",
+                  "pm.test(\"Rol recibido\", () => pm.expect((d.usuario || {}).rol).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Proveedores (CRUD)",
+      "item": [
+        {
+          "name": "Consultar proveedores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/ConsultarProveedores?pagina=1&tamanoPagina=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "ConsultarProveedores"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Hay registros\", () => pm.expect((pm.response.json().datos || {}).total).to.be.above(4));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar con búsqueda, filtros y orden",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/ConsultarProveedores?buscar=sur&estado=Activo&tipoPago=Credito&ordenarPor=Nombre&direccion=DESC&pagina=1&tamanoPagina=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "ConsultarProveedores"
+              ],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "sur"
+                },
+                {
+                  "key": "estado",
+                  "value": "Activo"
+                },
+                {
+                  "key": "tipoPago",
+                  "value": "Credito"
+                },
+                {
+                  "key": "ordenarPor",
+                  "value": "Nombre"
+                },
+                {
+                  "key": "direccion",
+                  "value": "DESC"
+                },
+                {
+                  "key": "pagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "5"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ordenamiento no permitido (400)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/ConsultarProveedores?ordenarPor=Clave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "ConsultarProveedores"
+              ],
+              "query": [
+                {
+                  "key": "ordenarPor",
+                  "value": "Clave"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar proveedor 1 (detalle + historial)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/BuscarProveedor/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "BuscarProveedor",
+                "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Trae últimas órdenes\", () => pm.expect((pm.response.json().datos || {}).ultimasOrdenes).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar proveedor inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/BuscarProveedor/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "BuscarProveedor",
+                "99999"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar proveedor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/AgregarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "AgregarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 30,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function dv(n){let s=0;for(let i=0;i<n.length;i++){s+=(+n[i])*(n.length-i+1);}const r=(11-s%11)%11;return r===10?\"K\":String(r);}",
+                  "const cuerpo = String(Math.floor(1000000 + Math.random()*8999999));",
+                  "pm.collectionVariables.set(\"nitNuevo\", cuerpo + \"-\" + dv(cuerpo));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"idProveedorNuevo\", d.idProveedor);",
+                  "pm.collectionVariables.set(\"rowVersionProveedor\", d.rowVersion);",
+                  "pm.test(\"Código PRxxx asignado\", () => pm.expect(d.codigo).to.match(/^PR\\d{3}$/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar con NIT duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/AgregarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "AgregarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 30,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar con NIT inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/AgregarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "AgregarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"1234567-1\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 30,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar contado con días de crédito (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/AgregarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "AgregarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Contado\",\n  \"diasCredito\": 15,\n  \"limiteCredito\": 0,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function dv(n){let s=0;for(let i=0;i<n.length;i++){s+=(+n[i])*(n.length-i+1);}const r=(11-s%11)%11;return r===10?\"K\":String(r);}",
+                  "const cuerpo = String(Math.floor(1000000 + Math.random()*8999999));",
+                  "pm.collectionVariables.set(\"nitNuevo\", cuerpo + \"-\" + dv(cuerpo));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar con rol Consulta (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/AgregarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "AgregarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 30,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function dv(n){let s=0;for(let i=0;i<n.length;i++){s+=(+n[i])*(n.length-i+1);}const r=(11-s%11)%11;return r===10?\"K\":String(r);}",
+                  "const cuerpo = String(Math.floor(1000000 + Math.random()*8999999));",
+                  "pm.collectionVariables.set(\"nitNuevo\", cuerpo + \"-\" + dv(cuerpo));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar proveedor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EditarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EditarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman (editada)\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 45,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\",\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"rowVersion\": \"{{rowVersionProveedor}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"rowVersionViejo\", pm.collectionVariables.get(\"rowVersionProveedor\"));",
+                  "pm.collectionVariables.set(\"rowVersionProveedor\", d.rowVersion);",
+                  "pm.test(\"Días actualizados\", () => pm.expect(d.diasCredito).to.eql(45));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar con rowVersion desactualizado (409 concurrencia)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EditarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EditarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 30,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\",\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"rowVersion\": \"{{rowVersionViejo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar sin motivo (400)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EliminarProveedor/{{idProveedorNuevo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EliminarProveedor",
+                "{{idProveedorNuevo}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar con rol Compras (403)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EliminarProveedor/{{idProveedorNuevo}}?motivo=Prueba de permisos por rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EliminarProveedor",
+                "{{idProveedorNuevo}}"
+              ],
+              "query": [
+                {
+                  "key": "motivo",
+                  "value": "Prueba de permisos por rol"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar proveedor (inactivación lógica)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EliminarProveedor/{{idProveedorNuevo}}?motivo=Proveedor de prueba creado desde Postman",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EliminarProveedor",
+                "{{idProveedorNuevo}}"
+              ],
+              "query": [
+                {
+                  "key": "motivo",
+                  "value": "Proveedor de prueba creado desde Postman"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Queda Inactivo\", () => pm.expect((pm.response.json().datos || {}).estado).to.eql(\"Inactivo\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar proveedor inactivo (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EditarProveedor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EditarProveedor"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Distribuidora Prueba Postman\",\n  \"nit\": \"{{nitNuevo}}\",\n  \"idCategoria\": 1,\n  \"contacto\": \"Ana Prueba\",\n  \"telefono\": \"2360-9999\",\n  \"email\": \"prueba@postman.test\",\n  \"direccion\": \"Zona 1, Cuilapa\",\n  \"departamento\": \"Santa Rosa\",\n  \"tipoPago\": \"Credito\",\n  \"diasCredito\": 30,\n  \"limiteCredito\": 25000,\n  \"banco\": \"Banco Simulado GT\",\n  \"numeroCuenta\": \"SIM-123-4567890\",\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"rowVersion\": \"{{rowVersionProveedor}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reactivar proveedor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/ReactivarProveedor/{{idProveedorNuevo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "ReactivarProveedor",
+                "{{idProveedorNuevo}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Queda Activo\", () => pm.expect((pm.response.json().datos || {}).estado).to.eql(\"Activo\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar proveedor con órdenes abiertas (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Proveedores/EliminarProveedor/2?motivo=Prueba de regla de negocio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Proveedores",
+                "EliminarProveedor",
+                "2"
+              ],
+              "query": [
+                {
+                  "key": "motivo",
+                  "value": "Prueba de regla de negocio"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar categorías",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Categorias/ConsultarCategorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Categorias",
+                "ConsultarCategorias"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Órdenes de compra y recepción (CRUD + proceso)",
+      "item": [
+        {
+          "name": "Catálogo de bodegas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Catalogos/ConsultarBodegas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Catalogos",
+                "ConsultarBodegas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Catálogo de productos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Catalogos/ConsultarProductos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Catalogos",
+                "ConsultarProductos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar orden de compra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/AgregarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "AgregarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"idBodega\": 1,\n  \"fechaEsperada\": \"{{fechaEsperada}}\",\n  \"observaciones\": \"Orden de prueba desde Postman\",\n  \"lineas\": [\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 20,\n      \"costoUnitario\": 4.25\n    },\n    {\n      \"idProducto\": 2,\n      \"cantidadPedida\": 10,\n      \"costoUnitario\": 5.1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = new Date(); d.setDate(d.getDate() + 5);",
+                  "pm.collectionVariables.set(\"fechaEsperada\", d.toISOString().substring(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"idOrden\", d.idOrdenCompra);",
+                  "pm.collectionVariables.set(\"rowVersionOrden\", d.rowVersion);",
+                  "pm.test(\"Estado Pendiente\", () => pm.expect(d.estado).to.eql(\"Pendiente\"));",
+                  "pm.test(\"Total calculado por la BD (IVA 12%)\", () => pm.expect(d.total).to.eql(Math.round((136.00)*1.12*100)/100));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar orden con producto repetido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/AgregarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "AgregarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"idBodega\": 1,\n  \"fechaEsperada\": \"{{fechaEsperada}}\",\n  \"observaciones\": \"Orden de prueba desde Postman\",\n  \"lineas\": [\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 5,\n      \"costoUnitario\": 4\n    },\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 5,\n      \"costoUnitario\": 4\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar orden a proveedor inactivo (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/AgregarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "AgregarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idProveedor\": 7,\n  \"idBodega\": 1,\n  \"fechaEsperada\": \"{{fechaEsperada}}\",\n  \"observaciones\": \"Orden de prueba desde Postman\",\n  \"lineas\": [\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 20,\n      \"costoUnitario\": 4.25\n    },\n    {\n      \"idProducto\": 2,\n      \"cantidadPedida\": 10,\n      \"costoUnitario\": 5.1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar orden (Pendiente)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/EditarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "EditarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"idBodega\": 1,\n  \"fechaEsperada\": \"{{fechaEsperada}}\",\n  \"observaciones\": \"Orden de prueba desde Postman\",\n  \"lineas\": [\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 30,\n      \"costoUnitario\": 4.25\n    },\n    {\n      \"idProducto\": 2,\n      \"cantidadPedida\": 10,\n      \"costoUnitario\": 5.1\n    }\n  ],\n  \"idOrdenCompra\": {{idOrden}},\n  \"rowVersion\": \"{{rowVersionOrden}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.collectionVariables.set(\"rowVersionOrden\", (pm.response.json().datos || {}).rowVersion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aprobar con rol Compras (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/AprobarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "AprobarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOrdenCompra\": {{idOrden}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aprobar orden (Gerente)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/AprobarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "AprobarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOrdenCompra\": {{idOrden}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Estado Aprobada\", () => pm.expect((pm.response.json().datos || {}).estado).to.eql(\"Aprobada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar orden aprobada (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/EditarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "EditarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"idBodega\": 1,\n  \"fechaEsperada\": \"{{fechaEsperada}}\",\n  \"observaciones\": \"Orden de prueba desde Postman\",\n  \"lineas\": [\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 20,\n      \"costoUnitario\": 4.25\n    },\n    {\n      \"idProducto\": 2,\n      \"cantidadPedida\": 10,\n      \"costoUnitario\": 5.1\n    }\n  ],\n  \"idOrdenCompra\": {{idOrden}},\n  \"rowVersion\": \"{{rowVersionOrden}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar orden (líneas e historial)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/BuscarOrdenCompra/{{idOrden}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "BuscarOrdenCompra",
+                "{{idOrden}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBodega}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"idLinea1\", ((d.lineas || [])[0] || {}).idDetalle);",
+                  "pm.collectionVariables.set(\"idLinea2\", ((d.lineas || [])[1] || {}).idDetalle);",
+                  "pm.test(\"Historial con creación y aprobación\", () => pm.expect((d.historial || []).length).to.be.at.least(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recibir más de lo pedido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/RecibirOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "RecibirOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBodega}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOrdenCompra\": {{idOrden}},\n  \"numeroFactura\": \"PM-{{$timestamp}}\",\n  \"lineas\": [\n    {\n      \"idDetalle\": {{idLinea1}},\n      \"cantidad\": 999\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recibir parcial (proceso: inventario + cuenta por pagar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/RecibirOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "RecibirOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBodega}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOrdenCompra\": {{idOrden}},\n  \"serieFactura\": \"PM\",\n  \"numeroFactura\": \"{{$timestamp}}\",\n  \"lineas\": [\n    {\n      \"idDetalle\": {{idLinea1}},\n      \"cantidad\": 30\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"idRecepcion\", d.idRecepcion);",
+                  "pm.collectionVariables.set(\"idCuentaPagar\", d.idCuentaPagar);",
+                  "pm.test(\"Generó cuenta por pagar\", () => pm.expect(d.idCuentaPagar).to.be.above(0));",
+                  "pm.test(\"Cumplimiento calculado (RQ27)\", () => pm.expect([\"ATiempo\",\"Anticipada\",\"Retraso\"]).to.include(d.cumplimiento));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recibir con rol Tesorería (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/RecibirOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "RecibirOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOrdenCompra\": {{idOrden}},\n  \"numeroFactura\": \"X1\",\n  \"lineas\": [\n    {\n      \"idDetalle\": {{idLinea2}},\n      \"cantidad\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado Parcial",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/BuscarOrdenCompra/{{idOrden}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "BuscarOrdenCompra",
+                "{{idOrden}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Estado Parcial\", () => pm.expect((pm.response.json().datos || {}).orden.estado).to.eql(\"Parcial\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Anular orden con recepciones (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/EliminarOrdenCompra/{{idOrden}}?motivo=Prueba de anulación no permitida",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "EliminarOrdenCompra",
+                "{{idOrden}}"
+              ],
+              "query": [
+                {
+                  "key": "motivo",
+                  "value": "Prueba de anulación no permitida"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recibir el resto (Recibida)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/RecibirOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "RecibirOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBodega}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idOrdenCompra\": {{idOrden}},\n  \"serieFactura\": \"PM\",\n  \"numeroFactura\": \"R{{$timestamp}}\",\n  \"lineas\": [\n    {\n      \"idDetalle\": {{idLinea2}},\n      \"cantidad\": 10\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar órdenes (filtros y orden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/ConsultarOrdenesCompra?estado=Recibida&ordenarPor=Total&direccion=DESC&pagina=1&tamanoPagina=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "ConsultarOrdenesCompra"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "Recibida"
+                },
+                {
+                  "key": "ordenarPor",
+                  "value": "Total"
+                },
+                {
+                  "key": "direccion",
+                  "value": "DESC"
+                },
+                {
+                  "key": "pagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar órdenes atrasadas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/ConsultarOrdenesCompra?soloAtrasadas=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "ConsultarOrdenesCompra"
+              ],
+              "query": [
+                {
+                  "key": "soloAtrasadas",
+                  "value": "true"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar orden para anular",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/AgregarOrdenCompra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "AgregarOrdenCompra"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idProveedor\": {{idProveedorNuevo}},\n  \"idBodega\": 1,\n  \"fechaEsperada\": \"{{fechaEsperada}}\",\n  \"observaciones\": \"Orden de prueba desde Postman\",\n  \"lineas\": [\n    {\n      \"idProducto\": 1,\n      \"cantidadPedida\": 20,\n      \"costoUnitario\": 4.25\n    },\n    {\n      \"idProducto\": 2,\n      \"cantidadPedida\": 10,\n      \"costoUnitario\": 5.1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = new Date(); d.setDate(d.getDate() + 5);",
+                  "pm.collectionVariables.set(\"fechaEsperada\", d.toISOString().substring(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.collectionVariables.set(\"idOrdenAnular\", (pm.response.json().datos || {}).idOrdenCompra);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar orden (anulación lógica con motivo)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/OrdenesCompra/EliminarOrdenCompra/{{idOrdenAnular}}?motivo=El proveedor no tiene existencia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "OrdenesCompra",
+                "EliminarOrdenCompra",
+                "{{idOrdenAnular}}"
+              ],
+              "query": [
+                {
+                  "key": "motivo",
+                  "value": "El proveedor no tiene existencia"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Estado Anulada\", () => pm.expect((pm.response.json().datos || {}).estado).to.eql(\"Anulada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar recepciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Recepciones/ConsultarRecepciones?idOrdenCompra={{idOrden}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Recepciones",
+                "ConsultarRecepciones"
+              ],
+              "query": [
+                {
+                  "key": "idOrdenCompra",
+                  "value": "{{idOrden}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar recepción (nota de compra)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Recepciones/BuscarRecepcion/{{idRecepcion}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Recepciones",
+                "BuscarRecepcion",
+                "{{idRecepcion}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Cuentas por pagar y pagos (API bancaria)",
+      "item": [
+        {
+          "name": "Consultar cuentas por pagar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/ConsultarCuentasPorPagar?soloConSaldo=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "ConsultarCuentasPorPagar"
+              ],
+              "query": [
+                {
+                  "key": "soloConSaldo",
+                  "value": "true"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar cuentas vencidas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/ConsultarCuentasPorPagar?soloVencidas=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "ConsultarCuentasPorPagar"
+              ],
+              "query": [
+                {
+                  "key": "soloVencidas",
+                  "value": "true"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cuentas por pagar con rol Compras (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/ConsultarCuentasPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "ConsultarCuentasPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCompras}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar cuenta por pagar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/BuscarCuentaPorPagar/{{idCuentaPagar}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "BuscarCuentaPorPagar",
+                "{{idCuentaPagar}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.collectionVariables.set(\"saldoCuenta\", ((pm.response.json().datos || {}).cuenta || {}).saldo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pago mayor al saldo (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/PagarCuentaPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "PagarCuentaPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCuentaPagar\": {{idCuentaPagar}},\n  \"operacionId\": \"{{operacionId}}\",\n  \"monto\": 999999,\n  \"metodo\": \"Efectivo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"operacionId\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cheque sin número (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/PagarCuentaPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "PagarCuentaPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCuentaPagar\": {{idCuentaPagar}},\n  \"operacionId\": \"{{operacionId}}\",\n  \"monto\": 10,\n  \"metodo\": \"Cheque\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"operacionId\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pago parcial en efectivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/PagarCuentaPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "PagarCuentaPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCuentaPagar\": {{idCuentaPagar}},\n  \"operacionId\": \"{{operacionId}}\",\n  \"monto\": 50,\n  \"metodo\": \"Efectivo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"operacionId\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Aprobado\", () => pm.expect((pm.response.json().datos || {}).estado).to.eql(\"Aprobado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pago por transferencia (API bancaria externa)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/PagarCuentaPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "PagarCuentaPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCuentaPagar\": {{idCuentaPagar}},\n  \"operacionId\": \"{{operacionId}}\",\n  \"monto\": 20,\n  \"metodo\": \"Transferencia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"operacionId\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "const d = pm.response.json().datos || {};",
+                  "pm.collectionVariables.set(\"idPagoTransferencia\", d.idPago);",
+                  "pm.test(\"Aprobado por el banco con autorización\", () => { pm.expect(d.estado).to.eql(\"Aprobado\"); pm.expect(d.referenciaBanco).to.match(/^SIM-/); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Repetir la misma operación (idempotencia, no duplica)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/PagarCuentaPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "PagarCuentaPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCuentaPagar\": {{idCuentaPagar}},\n  \"operacionId\": \"{{operacionId}}\",\n  \"monto\": 20,\n  \"metodo\": \"Transferencia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Devuelve el mismo pago\", () => pm.expect((pm.response.json().datos || {}).idPago).to.eql(pm.collectionVariables.get(\"idPagoTransferencia\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de la cuenta con sus pagos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/BuscarCuentaPorPagar/{{idCuentaPagar}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "BuscarCuentaPorPagar",
+                "{{idCuentaPagar}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Dos pagos aprobados\", () => pm.expect((pm.response.json().datos || {}).pagos.filter(p => p.estado === \"Aprobado\").length).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagos pendientes de respuesta del banco",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/CuentasPorPagar/ConsultarPagosPendientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CuentasPorPagar",
+                "ConsultarPagosPendientes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Reportes",
+      "item": [
+        {
+          "name": "Reporte 1 - Compras por proveedor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Reportes/ReporteComprasPorProveedor?fechaDesde={{desde}}&fechaHasta={{hasta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reportes",
+                "ReporteComprasPorProveedor"
+              ],
+              "query": [
+                {
+                  "key": "fechaDesde",
+                  "value": "{{desde}}"
+                },
+                {
+                  "key": "fechaHasta",
+                  "value": "{{hasta}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const h = new Date(); const i = new Date(); i.setDate(h.getDate() - 90);",
+                  "pm.collectionVariables.set(\"desde\", i.toISOString().substring(0,10));",
+                  "pm.collectionVariables.set(\"hasta\", h.toISOString().substring(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));",
+                  "pm.test(\"Trae resumen y totales\", () => { const d = pm.response.json().datos || {}; pm.expect(d.resumen.length).to.be.above(0); pm.expect(d.totales).to.be.an(\"object\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reporte 1 - Exportar CSV (Excel)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Reportes/ReporteComprasPorProveedor?fechaDesde={{desde}}&fechaHasta={{hasta}}&formato=csv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reportes",
+                "ReporteComprasPorProveedor"
+              ],
+              "query": [
+                {
+                  "key": "fechaDesde",
+                  "value": "{{desde}}"
+                },
+                {
+                  "key": "fechaHasta",
+                  "value": "{{hasta}}"
+                },
+                {
+                  "key": "formato",
+                  "value": "csv"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const h = new Date(); const i = new Date(); i.setDate(h.getDate() - 90);",
+                  "pm.collectionVariables.set(\"desde\", i.toISOString().substring(0,10));",
+                  "pm.collectionVariables.set(\"hasta\", h.toISOString().substring(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Es CSV\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reporte 2 - Cumplimiento de proveedores (RQ27)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Reportes/ReporteCumplimientoProveedores?fechaDesde={{desde}}&fechaHasta={{hasta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reportes",
+                "ReporteCumplimientoProveedores"
+              ],
+              "query": [
+                {
+                  "key": "fechaDesde",
+                  "value": "{{desde}}"
+                },
+                {
+                  "key": "fechaHasta",
+                  "value": "{{hasta}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const h = new Date(); const i = new Date(); i.setDate(h.getDate() - 90);",
+                  "pm.collectionVariables.set(\"desde\", i.toISOString().substring(0,10));",
+                  "pm.collectionVariables.set(\"hasta\", h.toISOString().substring(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reporte 3 - Cuentas por pagar por vencimiento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Reportes/ReporteCuentasPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reportes",
+                "ReporteCuentasPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenTesoreria}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"exito = true\", () => pm.expect(pm.response.json().exito).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reporte con rango invertido (400)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Reportes/ReporteComprasPorProveedor?fechaDesde=2026-12-31&fechaHasta=2026-01-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reportes",
+                "ReporteComprasPorProveedor"
+              ],
+              "query": [
+                {
+                  "key": "fechaDesde",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "fechaHasta",
+                  "value": "2026-01-01"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGerente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reportes con rol Bodega (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Reportes/ReporteCuentasPorPagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reportes",
+                "ReporteCuentasPorPagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBodega}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"exito = false\", () => pm.expect(pm.response.json().exito).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "tokenCompras",
+      "value": ""
+    },
+    {
+      "key": "tokenGerente",
+      "value": ""
+    },
+    {
+      "key": "tokenBodega",
+      "value": ""
+    },
+    {
+      "key": "tokenTesoreria",
+      "value": ""
+    },
+    {
+      "key": "tokenConsulta",
+      "value": ""
+    },
+    {
+      "key": "idProveedorNuevo",
+      "value": ""
+    },
+    {
+      "key": "idOrden",
+      "value": ""
+    },
+    {
+      "key": "idCuentaPagar",
+      "value": ""
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+.inicio-saludo {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.inicio-saludo h1 { font-size: 2.1rem; font-weight: 750; margin: 0; }
+.inicio-saludo p { color: var(--suave); margin: 0.3rem 0 0; }
+
+.cifra-enlace { text-decoration: none; color: var(--tinta); }
+.cifra-enlace:hover { background: #f8f9fc; color: var(--tinta); }
+.cifra-enlace:hover .cifra-etiqueta { color: var(--anil-3); }
+.cifra-alerta .cifra-valor { color: var(--error); }
+
+.inicio-colas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+.inicio-colas .panel { margin: 0; }
+@media (max-width: 480px) { .inicio-colas { grid-template-columns: 1fr; } }
+
+.cola { list-style: none; margin: 0; padding: 0; }
+.cola li + li { border-top: 1px solid #edf0f4; }
+.cola-item {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: center;
+  padding: 0.8rem 1.2rem; text-decoration: none; color: var(--tinta);
+}
+.cola-item:hover { background: #f8f9fc; color: var(--tinta); }
+.cola-principal, .cola-dato { display: flex; flex-direction: column; min-width: 0; }
+.cola-principal strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cola-principal small, .cola-dato small { color: var(--suave); font-size: 0.8rem; }
+.cola-dato { align-items: flex-end; gap: 0.2rem; }
+.cola-accion { color: var(--anil-3); font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+.texto-error { color: var(--error) !important; font-weight: 600; }
+@media (max-width: 560px) { .cola-accion { display: none; } .cola-item { grid-template-columns: 1fr auto; } }

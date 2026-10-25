@@ -1,0 +1,19 @@
+flowchart TD
+  C1[Compras registra la orden<br/>estado Pendiente] --> G{Gerente revisa}
+  G -- aprueba --> AP[Orden Aprobada]
+  G -- anula con motivo --> AN[Orden Anulada]
+  AP --> B1[Bodega recibe mercadería<br/>con factura del proveedor]
+  B1 --> T1[[Una sola transacción en SQL Server]]
+  T1 --> R1[Nota de compra<br/>RC-xxxxxx]
+  T1 --> R2[Existencias y kardex<br/>costo promedio]
+  T1 --> R3[Cuenta por pagar<br/>CP-xxxxxx · vence según crédito]
+  T1 --> R4{¿Queda pendiente?}
+  R4 -- sí --> PA[Orden Parcial] --> B1
+  R4 -- no --> RE[Orden Recibida]
+  R3 --> TS[Tesorería registra el pago]
+  TS -- Transferencia --> BK[API bancaria externa]
+  TS -- Cheque / Efectivo --> OK[Pago Aprobado]
+  BK -- APROBADA --> OK
+  BK -- RECHAZADA --> RZ[Pago Rechazado<br/>saldo sin cambios]
+  BK -- sin respuesta --> PE[Pago Pendiente<br/>se reintenta]
+  OK --> SA[Saldo disminuye<br/>Parcial / Pagada]

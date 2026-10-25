@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "API + Banco simulado",
+    "Projects": [
+      {
+        "Path": "LaPromesa.API\\LaPromesa.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "BancoSimulado.API\\BancoSimulado.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  }
+]

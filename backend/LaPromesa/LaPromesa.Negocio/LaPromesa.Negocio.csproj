@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LaPromesa.Datos\LaPromesa.Datos.csproj" />
+    <ProjectReference Include="..\LaPromesa.DTO\LaPromesa.DTO.csproj" />
+    <ProjectReference Include="..\LaPromesa.Entidades\LaPromesa.Entidades.csproj" />
+    <ProjectReference Include="..\LaPromesa.Utilidades\LaPromesa.Utilidades.csproj" />
+  </ItemGroup>
+
+</Project>

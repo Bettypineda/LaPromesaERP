@@ -1,0 +1,16 @@
+# Contenedor de SQL Server 2022 para La Promesa ERP.
+# La contraseña se toma del archivo .env (variable MSSQL_SA_PASSWORD); no se escribe aquí.
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: lapromesa_sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      MSSQL_PID: "Developer"
+    ports:
+      - "1435:1433"
+    volumes:
+      - lapromesa_sqldata:/var/opt/mssql
+volumes:
+  lapromesa_sqldata:

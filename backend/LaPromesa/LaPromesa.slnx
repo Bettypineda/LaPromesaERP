@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Capas/">
+    <Project Path="LaPromesa.API/LaPromesa.API.csproj" />
+    <Project Path="LaPromesa.Datos/LaPromesa.Datos.csproj" />
+    <Project Path="LaPromesa.DTO/LaPromesa.DTO.csproj" />
+    <Project Path="LaPromesa.Entidades/LaPromesa.Entidades.csproj" />
+    <Project Path="LaPromesa.Negocio/LaPromesa.Negocio.csproj" />
+    <Project Path="LaPromesa.Utilidades/LaPromesa.Utilidades.csproj" />
+  </Folder>
+  <Folder Name="/ServicioExterno/">
+    <Project Path="BancoSimulado.API/BancoSimulado.API.csproj" />
+  </Folder>
+</Solution>

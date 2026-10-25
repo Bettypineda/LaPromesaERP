@@ -1,0 +1,21 @@
+flowchart TB
+  U([Usuario en el navegador])
+  F["<b>Frontend · LaPromesa.Web</b><br/>React 19 + TypeScript + Vite · Bootstrap 5<br/>pages · components · services (Axios) · interfaces<br/>http://localhost:5173"]
+  subgraph A["Backend · solución LaPromesa.slnx (.NET 10) · http://localhost:5000"]
+    direction TB
+    A1["<b>LaPromesa.API</b><br/>Controllers · JWT · CORS · Swagger"]
+    A2["<b>LaPromesa.Negocio</b><br/>reglas del negocio · BancoServicio"]
+    A3["<b>LaPromesa.Datos</b><br/>ADO.NET · procedimientos almacenados"]
+    A4["LaPromesa.DTO · LaPromesa.Entidades · LaPromesa.Utilidades"]
+    A1 --> A2 --> A3
+    A4 -.- A2
+  end
+  D[("<b>SQL Server 2022</b> en Docker<br/>localhost,1435 · BD LaPromesaERP<br/>esquemas compras · inv · seg · rpt · aud · cfg")]
+  B["<b>BancoSimulado.API</b><br/>API externa independiente de pagos<br/>http://localhost:5100 · X-Api-Key"]
+  P["Postman · Swagger"]
+  U --> F
+  F -- "HTTP/JSON · Authorization: Bearer" --> A1
+  A3 -- "SP con parámetros" --> D
+  A2 -- "HTTP · transferencias" --> B
+  P -.-> A1
+  P -.-> B

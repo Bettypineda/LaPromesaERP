@@ -1,0 +1,524 @@
+{
+  "ejecutado": "2026-10-24T22:17:49.400Z",
+  "proveedor": "Distribuidora Santa Rosa 10242215",
+  "nit": "6700074-6",
+  "idProveedor": 2004,
+  "idOrden": 2006,
+  "idOrden2": 2007,
+  "idCuenta": 2003,
+  "resultados": [
+    {
+      "id": "VAL-01",
+      "prueba": "Login sin datos (validación en frontend)",
+      "esperado": "Mensajes de campo obligatorio",
+      "obtenido": "Escriba su usuario (mínimo 3 caracteres). | Escriba su contraseña (mínimo 6 caracteres).",
+      "resultado": "Aprobada",
+      "captura": "02_login_validacion_campos.png",
+      "fecha": "2026-10-24T22:15:36.250Z"
+    },
+    {
+      "id": "SEG-01",
+      "prueba": "Login con credenciales inválidas",
+      "esperado": "Rechazo 401 con mensaje claro",
+      "obtenido": "Usuario o contraseña incorrectos.",
+      "resultado": "Aprobada",
+      "captura": "03_login_credenciales_invalidas.png",
+      "fecha": "2026-10-24T22:15:38.210Z"
+    },
+    {
+      "id": "SEG-02",
+      "prueba": "Login administrador (access + refresh token)",
+      "esperado": "Ingresa al inicio con su rol",
+      "obtenido": "Inicio cargado: Buenas tardes, Administrador",
+      "resultado": "Aprobada",
+      "captura": "04_inicio_administrador.png",
+      "fecha": "2026-10-24T22:15:41.415Z"
+    },
+    {
+      "id": "SEG-02b",
+      "prueba": "Login rol Compras (sara.compras)",
+      "esperado": "Menú y acciones de Compras",
+      "obtenido": "Inicio cargado",
+      "resultado": "Aprobada",
+      "captura": "05_rol_compras_inicio.png",
+      "fecha": "2026-10-24T22:15:44.914Z"
+    },
+    {
+      "id": "PRV-01",
+      "prueba": "Consultar proveedores (paginado, ordenado)",
+      "esperado": "Listado con datos de la BD",
+      "obtenido": "10 filas en la página 1",
+      "resultado": "Aprobada",
+      "captura": "06_proveedores_consultar.png",
+      "fecha": "2026-10-24T22:15:46.764Z"
+    },
+    {
+      "id": "PRV-02",
+      "prueba": "Búsqueda por texto \"Lácteos\"",
+      "esperado": "Solo coincidencias",
+      "obtenido": "1 fila(s)",
+      "resultado": "Aprobada",
+      "captura": "07_proveedores_busqueda_texto.png",
+      "fecha": "2026-10-24T22:15:48.854Z"
+    },
+    {
+      "id": "PRV-03",
+      "prueba": "Filtro combinado (crédito) + ordenar por saldo",
+      "esperado": "Listado filtrado y ordenado",
+      "obtenido": "Filtro y orden aplicados",
+      "resultado": "Aprobada",
+      "captura": "08_proveedores_filtro_y_orden.png",
+      "fecha": "2026-10-24T22:15:50.654Z"
+    },
+    {
+      "id": "VAL-02",
+      "prueba": "Proveedor con nombre corto, NIT, teléfono y correo inválidos",
+      "esperado": "Mensajes por campo, no se envía",
+      "obtenido": "Escriba el nombre o razón social (mínimo 3 caracteres). | El NIT no es válido: revise el dígito verificador (ej. 1234567-9). | Seleccione una categoría. | Use 8 dígitos que inicien con 2 a 7 (ej. 2360-1111). | Escriba un correo válido (ej. ventas@empresa.com).",
+      "resultado": "Aprobada",
+      "captura": "09_proveedor_validaciones_frontend.png",
+      "fecha": "2026-10-24T22:15:52.964Z"
+    },
+    {
+      "id": "PRV-04",
+      "prueba": "Agregar proveedor (NIT 6700074-6)",
+      "esperado": "Se crea con código PR###",
+      "obtenido": "Creado id 2004: Distribuidora Santa Rosa 10242215",
+      "resultado": "Aprobada",
+      "captura": "11_proveedor_agregado_detalle.png",
+      "fecha": "2026-10-24T22:15:56.303Z"
+    },
+    {
+      "id": "PRV-04b",
+      "prueba": "Formulario de proveedor completo",
+      "esperado": "Datos válidos aceptados",
+      "obtenido": "Formulario enviado",
+      "resultado": "Aprobada",
+      "captura": "10_proveedor_agregar_formulario.png",
+      "fecha": "2026-10-24T22:15:56.303Z"
+    },
+    {
+      "id": "VAL-03",
+      "prueba": "Agregar proveedor con NIT repetido (regla en backend/BD)",
+      "esperado": "Rechazo 409 con mensaje",
+      "obtenido": "Ya existe un proveedor registrado con ese NIT.",
+      "resultado": "Aprobada",
+      "captura": "12_proveedor_nit_duplicado.png",
+      "fecha": "2026-10-24T22:15:58.358Z"
+    },
+    {
+      "id": "PRV-05",
+      "prueba": "Editar proveedor (días de crédito 30 → 45, con rowVersion)",
+      "esperado": "Cambio guardado",
+      "obtenido": "Crédito a 45 días",
+      "resultado": "Aprobada",
+      "captura": "13_proveedor_editar.png",
+      "fecha": "2026-10-24T22:16:00.293Z"
+    },
+    {
+      "id": "VAL-04",
+      "prueba": "Crear orden sin proveedor, bodega ni productos",
+      "esperado": "Mensajes por campo",
+      "obtenido": "Seleccione un proveedor. | Seleccione la bodega que recibirá la mercadería. | Seleccione un producto. | Mayor que cero. | Mayor que cero.",
+      "resultado": "Aprobada",
+      "captura": "14_orden_validaciones_frontend.png",
+      "fecha": "2026-10-24T22:16:02.226Z"
+    },
+    {
+      "id": "OC-01",
+      "prueba": "Agregar orden de compra con 2 líneas",
+      "esperado": "Queda Pendiente; totales calculados por la BD",
+      "obtenido": "Orden Orden OC-000105 creada",
+      "resultado": "Aprobada",
+      "captura": "16_orden_creada_pendiente.png",
+      "fecha": "2026-10-24T22:16:05.766Z"
+    },
+    {
+      "id": "OC-01b",
+      "prueba": "Formulario de orden con subtotal e IVA",
+      "esperado": "Cálculo en pantalla",
+      "obtenido": "Totales mostrados",
+      "resultado": "Aprobada",
+      "captura": "15_orden_agregar_formulario.png",
+      "fecha": "2026-10-24T22:16:05.766Z"
+    },
+    {
+      "id": "OC-02",
+      "prueba": "Consultar órdenes con pestañas de estado y filtros",
+      "esperado": "Listado paginado",
+      "obtenido": "Listado cargado",
+      "resultado": "Aprobada",
+      "captura": "17_ordenes_consultar.png",
+      "fecha": "2026-10-24T22:16:08.122Z"
+    },
+    {
+      "id": "OC-03",
+      "prueba": "Editar orden pendiente (cantidad 40 → 50)",
+      "esperado": "Cambio guardado con rowVersion",
+      "obtenido": "Orden actualizada",
+      "resultado": "Aprobada",
+      "captura": "18_orden_editar.png",
+      "fecha": "2026-10-24T22:16:10.175Z"
+    },
+    {
+      "id": "SEG-02c",
+      "prueba": "Login rol Gerente: órdenes esperando aprobación",
+      "esperado": "Cola de aprobación",
+      "obtenido": "Inicio cargado",
+      "resultado": "Aprobada",
+      "captura": "19_rol_gerente_inicio.png",
+      "fecha": "2026-10-24T22:16:13.357Z"
+    },
+    {
+      "id": "OC-04",
+      "prueba": "Aprobar orden (rol Gerente/Administrador)",
+      "esperado": "Estado Aprobada + historial",
+      "obtenido": "Aprobada",
+      "resultado": "Aprobada",
+      "captura": "21_orden_aprobada.png",
+      "fecha": "2026-10-24T22:16:16.386Z"
+    },
+    {
+      "id": "OC-04b",
+      "prueba": "Confirmación antes de aprobar",
+      "esperado": "Ventana de confirmación",
+      "obtenido": "Mostrada",
+      "resultado": "Aprobada",
+      "captura": "20_orden_aprobar_confirmacion.png",
+      "fecha": "2026-10-24T22:16:16.387Z"
+    },
+    {
+      "id": "SEG-05",
+      "prueba": "Rol Bodega: inicio con mercadería por recibir y menú sin finanzas",
+      "esperado": "No muestra Cuentas por pagar",
+      "obtenido": "Enlaces de finanzas: 0",
+      "resultado": "Aprobada",
+      "captura": "22_rol_bodega_inicio.png",
+      "fecha": "2026-10-24T22:16:19.558Z"
+    },
+    {
+      "id": "VAL-05",
+      "prueba": "Recibir más de lo pendiente y sin factura",
+      "esperado": "No permite; mensajes por campo",
+      "obtenido": "El número de factura del proveedor es obligatorio. | Máximo 50.",
+      "resultado": "Aprobada",
+      "captura": "23_recepcion_validaciones.png",
+      "fecha": "2026-10-24T22:16:21.421Z"
+    },
+    {
+      "id": "PROC-01",
+      "prueba": "Proceso integrado: recepción parcial",
+      "esperado": "Nota de compra + inventario + cuenta por pagar",
+      "obtenido": "Nota de compra RC-000102 Factura A-E2E-10242215 por Q 767.09 Inventario actualizado Existencias sumadas en Bodega Barberena Cuenta por pagar CP-000102 Generada ",
+      "resultado": "Aprobada",
+      "captura": "25_recepcion_resultado_proceso.png",
+      "fecha": "2026-10-24T22:16:44.306Z"
+    },
+    {
+      "id": "PROC-01b",
+      "prueba": "Formulario de recepción con factura",
+      "esperado": "Datos completos",
+      "obtenido": "Enviado",
+      "resultado": "Aprobada",
+      "captura": "24_recepcion_formulario.png",
+      "fecha": "2026-10-24T22:16:44.307Z"
+    },
+    {
+      "id": "PROC-02",
+      "prueba": "Orden queda en estado Parcial con recorrido e historial",
+      "esperado": "Estado Parcial",
+      "obtenido": "Distribuidora Santa Rosa 10242215 · para Bodega Barberena  Parcial",
+      "resultado": "Aprobada",
+      "captura": "26_orden_parcial_recorrido.png",
+      "fecha": "2026-10-24T22:16:46.156Z"
+    },
+    {
+      "id": "PROC-03",
+      "prueba": "Consultar recepciones con cumplimiento",
+      "esperado": "Listado",
+      "obtenido": "Listado cargado",
+      "resultado": "Aprobada",
+      "captura": "27_recepciones_consultar.png",
+      "fecha": "2026-10-24T22:16:48.115Z"
+    },
+    {
+      "id": "SEG-02d",
+      "prueba": "Login rol Tesorería",
+      "esperado": "Cuentas vencidas y pagos",
+      "obtenido": "Inicio cargado",
+      "resultado": "Aprobada",
+      "captura": "28_rol_tesoreria_inicio.png",
+      "fecha": "2026-10-24T22:16:50.983Z"
+    },
+    {
+      "id": "API-01",
+      "prueba": "Pago por transferencia (API bancaria externa)",
+      "esperado": "Banco APRUEBA y devuelve autorización SIM-…",
+      "obtenido": "Pago PG-000101: Aprobado · autorización SIM-20261024-736120 · Transferencia acreditada.",
+      "resultado": "Aprobada",
+      "captura": "30_pago_transferencia_aprobada.png",
+      "fecha": "2026-10-24T22:16:56.816Z"
+    },
+    {
+      "id": "API-01b",
+      "prueba": "Formulario de pago con método Transferencia",
+      "esperado": "Banco y cuenta del proveedor precargados",
+      "obtenido": "Mostrado",
+      "resultado": "Aprobada",
+      "captura": "29_pago_formulario_transferencia.png",
+      "fecha": "2026-10-24T22:16:56.817Z"
+    },
+    {
+      "id": "API-02",
+      "prueba": "Transferencia a cuenta inexistente (termina en 0000)",
+      "esperado": "Banco RECHAZA; el saldo no cambia",
+      "obtenido": "Pago PG-000102: Rechazado · La cuenta destino no existe.",
+      "resultado": "Aprobada",
+      "captura": "31_pago_transferencia_rechazada.png",
+      "fecha": "2026-10-24T22:16:59.684Z"
+    },
+    {
+      "id": "VAL-06",
+      "prueba": "Pagar más que el saldo disponible",
+      "esperado": "No permite; mensaje claro",
+      "obtenido": "No puede superar el saldo disponible (Q 617.09).",
+      "resultado": "Aprobada",
+      "captura": "32_pago_validacion_monto.png",
+      "fecha": "2026-10-24T22:17:01.565Z"
+    },
+    {
+      "id": "CXP-01",
+      "prueba": "Consultar cuentas por pagar",
+      "esperado": "Listado con saldos y vencimientos",
+      "obtenido": "Listado cargado",
+      "resultado": "Aprobada",
+      "captura": "33_cuentas_por_pagar_consultar.png",
+      "fecha": "2026-10-24T22:17:03.460Z"
+    },
+    {
+      "id": "RN-01",
+      "prueba": "Quien crea la orden intenta aprobarla",
+      "esperado": "Rechazo 409 (segregación de funciones)",
+      "obtenido": "Quien creó la orden no puede aprobarla (segregación de funciones).",
+      "resultado": "Aprobada",
+      "captura": "34_regla_segregacion_funciones.png",
+      "fecha": "2026-10-24T22:17:08.398Z"
+    },
+    {
+      "id": "VAL-07",
+      "prueba": "Anular con motivo menor a 10 caracteres",
+      "esperado": "No permite",
+      "obtenido": "Escriba el motivo (mínimo 10 caracteres).",
+      "resultado": "Aprobada",
+      "captura": "35_orden_anular_motivo_corto.png",
+      "fecha": "2026-10-24T22:17:12.631Z"
+    },
+    {
+      "id": "OC-05",
+      "prueba": "Eliminar orden = anulación lógica con motivo",
+      "esperado": "Estado Anulada; motivo, usuario y fecha",
+      "obtenido": "Anulada",
+      "resultado": "Aprobada",
+      "captura": "36_orden_anulada_trazabilidad.png",
+      "fecha": "2026-10-24T22:17:13.938Z"
+    },
+    {
+      "id": "PRV-06",
+      "prueba": "Inactivar proveedor con orden abierta y saldo",
+      "esperado": "Regla del negocio lo impide (409)",
+      "obtenido": "No se puede inactivar un proveedor con órdenes de compra abiertas (Pendiente, Aprobada o Parcial).",
+      "resultado": "Aprobada",
+      "captura": "37_proveedor_inactivar_regla_negocio.png",
+      "fecha": "2026-10-24T22:17:16.263Z"
+    },
+    {
+      "id": "REP-compras",
+      "prueba": "Reporte: reporte compras por proveedor",
+      "esperado": "Totales, resumen y detalle con filtros",
+      "obtenido": "2 tabla(s) generadas",
+      "resultado": "Aprobada",
+      "captura": "38_reporte_compras_por_proveedor.png",
+      "fecha": "2026-10-24T22:17:19.872Z"
+    },
+    {
+      "id": "REP-cumplimiento",
+      "prueba": "Reporte: reporte cumplimiento entregas",
+      "esperado": "Totales, resumen y detalle con filtros",
+      "obtenido": "2 tabla(s) generadas",
+      "resultado": "Aprobada",
+      "captura": "39_reporte_cumplimiento_entregas.png",
+      "fecha": "2026-10-24T22:17:23.359Z"
+    },
+    {
+      "id": "REP-cuentas",
+      "prueba": "Reporte: reporte antiguedad cuentas",
+      "esperado": "Totales, resumen y detalle con filtros",
+      "obtenido": "2 tabla(s) generadas",
+      "resultado": "Aprobada",
+      "captura": "40_reporte_antiguedad_cuentas.png",
+      "fecha": "2026-10-24T22:17:26.849Z"
+    },
+    {
+      "id": "SEG-03",
+      "prueba": "Rol Consulta: interfaz sin acciones de escritura",
+      "esperado": "No muestra \"Agregar proveedor\"",
+      "obtenido": "Botones visibles: 0",
+      "resultado": "Aprobada",
+      "captura": "42_rol_consulta_sin_botones.png",
+      "fecha": "2026-10-24T22:17:31.577Z"
+    },
+    {
+      "id": "SEG-04",
+      "prueba": "Rol Consulta abre /proveedores/nuevo por URL",
+      "esperado": "Pantalla \"no disponible para su rol\"",
+      "obtenido": "Esta sección no está disponible para su rol",
+      "resultado": "Aprobada",
+      "captura": "43_rol_consulta_ruta_protegida.png",
+      "fecha": "2026-10-24T22:17:32.695Z"
+    },
+    {
+      "id": "SEG-03b",
+      "prueba": "Inicio del rol Consulta",
+      "esperado": "Menú según rol",
+      "obtenido": "Mostrado",
+      "resultado": "Aprobada",
+      "captura": "41_rol_consulta_inicio.png",
+      "fecha": "2026-10-24T22:17:32.695Z"
+    },
+    {
+      "id": "UI-01",
+      "prueba": "Interfaz adaptable (celular 390 px)",
+      "esperado": "Se reorganiza sin desbordes",
+      "obtenido": "Vista móvil correcta",
+      "resultado": "Aprobada",
+      "captura": "44_vista_celular_orden.png",
+      "fecha": "2026-10-24T22:17:37.530Z"
+    },
+    {
+      "id": "SEG-06",
+      "prueba": "API sin token",
+      "esperado": "401 No autorizado",
+      "obtenido": "HTTP 401",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:37.642Z"
+    },
+    {
+      "id": "SEG-07",
+      "prueba": "Rol Consulta intenta AgregarProveedor directo en la API",
+      "esperado": "403 Prohibido (permiso en backend)",
+      "obtenido": "HTTP 403",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:37.933Z"
+    },
+    {
+      "id": "VAL-08",
+      "prueba": "API valida datos aunque se salte el frontend",
+      "esperado": "400 con mensajes por campo",
+      "obtenido": "HTTP 400: El NIT no es válido (verifique el dígito verificador, ej. 1234567-9). Correo inválido. Debe tener entre 3 y 150 caracteres. Seleccione una categoría.",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.256Z"
+    },
+    {
+      "id": "SEG-08",
+      "prueba": "Renovar sesión con refresh token",
+      "esperado": "200 y refresh token nuevo (rotación)",
+      "obtenido": "HTTP 200, distinto: true",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.283Z"
+    },
+    {
+      "id": "SEG-09",
+      "prueba": "Reutilizar refresh token ya rotado",
+      "esperado": "401 (detección de reutilización)",
+      "obtenido": "HTTP 401",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.315Z"
+    },
+    {
+      "id": "SEG-10",
+      "prueba": "Cerrar sesión",
+      "esperado": "200 y refresh token invalidado",
+      "obtenido": "HTTP 200",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.635Z"
+    },
+    {
+      "id": "SEG-11",
+      "prueba": "Usar refresh token después de cerrar sesión",
+      "esperado": "401",
+      "obtenido": "HTTP 401",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.660Z"
+    },
+    {
+      "id": "EXT-01",
+      "prueba": "Banco simulado en línea (/health)",
+      "esperado": "200 en línea",
+      "obtenido": "HTTP 200",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.671Z"
+    },
+    {
+      "id": "EXT-02",
+      "prueba": "Llamar al banco sin X-Api-Key",
+      "esperado": "401 NO_AUTORIZADO",
+      "obtenido": "HTTP 401",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.680Z"
+    },
+    {
+      "id": "EXT-03",
+      "prueba": "Transferencia válida",
+      "esperado": "200 APROBADA con autorización",
+      "obtenido": "HTTP 200 APROBADA SIM-20261024-758338",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.992Z"
+    },
+    {
+      "id": "EXT-04",
+      "prueba": "Repetir la misma operación (idempotencia)",
+      "esperado": "Misma autorización, sin doble débito",
+      "obtenido": "Misma autorización",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:38.998Z"
+    },
+    {
+      "id": "EXT-05",
+      "prueba": "Monto mayor a Q50,000",
+      "esperado": "RECHAZADA",
+      "obtenido": "RECHAZADA: El monto excede el límite por transferencia (Q50,000.00).",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:39.338Z"
+    },
+    {
+      "id": "EXT-06",
+      "prueba": "Banco caído (X-Simular: error)",
+      "esperado": "503; el ERP deja el pago Pendiente",
+      "obtenido": "HTTP 503",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:39.341Z"
+    },
+    {
+      "id": "EXT-07",
+      "prueba": "Moneda distinta de GTQ",
+      "esperado": "400 Solicitud inválida",
+      "obtenido": "HTTP 400",
+      "resultado": "Aprobada",
+      "captura": null,
+      "fecha": "2026-10-24T22:17:39.344Z"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+/* =========================================
+   FORMULARIOS (proveedor, orden, recepción, pago)
+========================================= */
+.formulario { max-width: 1040px; }
+.rejilla-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 1.25rem;
+}
+.rejilla-campos .campo-doble { grid-column: span 2; }
+@media (max-width: 600px) { .rejilla-campos .campo-doble { grid-column: span 1; } }
+
+.formulario-acciones {
+  display: flex; justify-content: flex-end; gap: 0.6rem;
+  padding: 0.5rem 0 1rem;
+}
+
+.opciones-pago { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75rem; }
+.opcion {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  padding: 0.9rem 1rem; border: 1.5px solid var(--linea); border-radius: var(--radio-sm); cursor: pointer;
+}
+.opcion:hover { border-color: var(--anil-3); }
+.opcion.seleccionada { border-color: var(--anil); background: var(--anil-claro); }
+.opcion input { margin-top: 0.3rem; accent-color: var(--anil); }
+.opcion span { display: flex; flex-direction: column; }
+.opcion small { color: var(--suave); }
+
+/* Líneas de la orden / recepción */
+.lineas td { vertical-align: top; }
+.lineas .form-control, .lineas .form-select { min-width: 90px; }
+.lineas .col-producto { min-width: 260px; }
+.lineas .col-cantidad { width: 130px; }
+.lineas .col-costo { width: 150px; }
+.totales {
+  display: grid; grid-template-columns: auto auto; justify-content: end; gap: 0.3rem 2rem;
+  padding: 1rem 1.2rem; border-top: 1px solid var(--linea); font-variant-numeric: tabular-nums;
+}
+.totales dt { color: var(--suave); font-weight: 500; text-align: right; }
+.totales dd { margin: 0; text-align: right; font-weight: 600; }
+.totales .total-final { font-family: var(--fuente-titulo); font-size: 1.35rem; font-weight: 750; color: var(--tinta); }
