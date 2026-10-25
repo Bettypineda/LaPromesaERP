@@ -3,13 +3,13 @@
    ---------------------------------------------------------------------
    Esquemas:
      cfg     -> parámetros del sistema (IVA, tolerancias, límites)
-     inv     -> inventario (TEMPORAL: pertenece al módulo de Fernando)
+     inv     -> inventario base para el proceso de compras
      compras -> Proveedores, Órdenes de compra, Recepciones,
-                Cuentas por pagar y Pagos (módulos de Sara)
+                Cuentas por pagar y Pagos
      rpt     -> procedimientos de reportes
      aud     -> bitácora de cambios y registro de errores
-   Los esquemas evitan choques de nombres al integrar con los módulos
-   de los compañeros (que normalmente usan dbo).
+   Los esquemas separan cada área y evitan choques de nombres al
+   integrar con los demás módulos del ERP.
    ===================================================================== */
 SET NOCOUNT ON;
 SET ANSI_NULLS ON;

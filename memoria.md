@@ -37,7 +37,7 @@ Memoria del proyecto para el agente de IA. Registrar solo decisiones y resultado
 - Endpoints: /api/auth, /api/proveedores, /api/categorias-proveedor, /api/ordenes-compra (+aprobar, anular, recepciones),
   /api/recepciones, /api/cuentas-por-pagar (+pagos), /api/pagos (pendientes, reintentar), /api/reportes (3, JSON o CSV), /api/catalogos.
 - BancoSimulado.Api (puerto 5100): servicio independiente con X-Api-Key, idempotencia por operacionId, reglas deterministas y X-Simular.
-- Secretos: `scripts/configurar-secretos.ps1` (user-secrets; nada en el repositorio).
+- Secretos: `scripts/Secretitos.ps1` (user-secrets; nada en el repositorio).
 
 ## 2026-10-23 — Base de datos VERIFICADA en SSMS (localhost,1435)
 - 00_ejecutar_todo.sql (Modo SQLCMD): 01–14 y datos de prueba en [OK], "base de datos instalada correctamente".
@@ -85,5 +85,5 @@ Memoria del proyecto para el agente de IA. Registrar solo decisiones y resultado
   Resultado: 57/57 casos (validaciones, permisos por rol, refresh token, proceso integrado por 4 roles, pagos aprobado/rechazado, API del banco). 46 capturas en docs/evidencias/capturas.
 - Re-ejecutado en SSMS: 01_pruebas_reglas_negocio 29/29; 02_verificar_objetos sin faltantes. Postman Runner: 177/177.
 - Correcciones encontradas por las pruebas: mensajes de validación de los DTO en español; al cerrar sesión el siguiente usuario entra a Inicio (no a la página anterior); Docker se había detenido (login colgado).
-- Documentos: docs/manuales/Manual_Tecnico_Proveedores_Compras.docx, docs/manuales/Manual_Usuario_Proveedores_Compras.docx, docs/evidencias/Evidencias_Pruebas_Proveedores_Compras.docx.
+- Documentos: docs/manuales/Manual_Tecnico_Proveedores_Compras.docx, docs/manuales/Manual_Usuario_Proveedores_Compras.docx, docs/evidencias/Evidencia_Compras_Prove.docx.
 - Diagramas (Mermaid, fuente .mmd + .png): arquitectura, ER, proceso de compras, secuencia de pago con el banco, flujo JWT en docs/diagramas.

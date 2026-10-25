@@ -1,5 +1,5 @@
 ﻿/* =====================================================================
-   LA PROMESA ERP  |  05 - Tablas de PROVEEDORES y COMPRAS (Sara)
+   LA PROMESA ERP  |  05 - Tablas de PROVEEDORES y COMPRAS
    ---------------------------------------------------------------------
    Proceso integrado:
      Orden de compra (Pendiente) -> Aprobación -> Recepción parcial/total

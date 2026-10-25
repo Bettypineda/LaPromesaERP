@@ -2,7 +2,7 @@
    LA PROMESA ERP  |  01 - Creación de la base de datos
    ---------------------------------------------------------------------
    Motor   : SQL Server 2022 (contenedor Docker, puerto 1435)
-   Autora  : Sara (módulos Proveedores y Compras)
+   Módulos : Proveedores y Compras
    Propósito:
      - Crear la base LaPromesaERP con intercalación en español.
      - Activar READ_COMMITTED_SNAPSHOT para que las lecturas (reportes,

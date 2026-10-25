@@ -1,13 +1,12 @@
 ﻿/* =====================================================================
    LA PROMESA ERP  |  00 - EJECUTAR TODO (instalación completa)
    ---------------------------------------------------------------------
-   CÓMO USARLO EN SSMS:
-     1. Abra este archivo en SSMS (conectado a localhost,1435).
-     2. Menú Consulta -> Modo SQLCMD  (debe quedar activado).
-     3. Revise que RutaBD apunte a la carpeta database del proyecto.
-     4. Presione F5. Debe ver mensajes [OK] 01 ... [OK] Datos de prueba.
-   Todos los scripts son repetibles (se pueden volver a ejecutar).
-   Después ejecute tests/01_pruebas_reglas_negocio.sql.
+   Ejecución en SSMS (conexión localhost,1435):
+     1. Activar Consulta -> Modo SQLCMD.
+     2. RutaBD apunta a la carpeta database del proyecto.
+     3. F5: se muestran los mensajes [OK] 01 ... [OK] Datos de prueba.
+   Todos los scripts son repetibles.
+   Validación posterior: tests/01_pruebas_reglas_negocio.sql.
    ===================================================================== */
 :setvar RutaBD "C:\Desarrollo_Web\LaPromesaERP\database"
 :on error exit

@@ -17,7 +17,7 @@ Todos los scripts son **repetibles**. `13_usuario_aplicacion.sql` es opcional y 
 |---|---|
 | 01 | Base de datos, `READ_COMMITTED_SNAPSHOT` (lecturas sin bloqueos) |
 | 02 | Esquemas `cfg`, `inv`, `compras`, `rpt`, `aud`; parámetros; bitácora; registro de errores |
-| 03 | Inventario **temporal** (`inv.*`, módulo de Fernando) |
+| 03 | Inventario **temporal** (`inv.*`, base del módulo de Inventarios) |
 | 04 | Secuencias de numeración y funciones (NIT módulo 11, teléfono, cumplimiento RQ27, antigüedad) |
 | 05 | Tablas con PK, FK, UNIQUE, CHECK, auditoría, `ROWVERSION` e índices |
 | 06 | Vistas para pantallas y reportes |
@@ -125,5 +125,5 @@ Cada recepción = nota de compra definitiva ──▶ existencias + kardex (inve
 
 ## Integración pendiente
 
-- `inv.*` son tablas temporales. Al recibir el esquema de Fernando se reemplaza solo el bloque **INVENTARIO** de `compras.sp_Recepcion_Registrar` y las FK hacia productos/bodegas.
+- `inv.*` son tablas temporales. Al integrar el módulo de Inventarios se ajusta solo el bloque **INVENTARIO** de `compras.sp_Recepcion_Registrar` y las FK hacia productos/bodegas.
 - El usuario de cada operación (`@Usuario`) lo enviará el backend desde el JWT; la base lo guarda en auditoría mediante `SESSION_CONTEXT`.

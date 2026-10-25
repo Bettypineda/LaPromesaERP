@@ -6,7 +6,7 @@
    Ejecutar con sqlcmd (no forma parte de 00_ejecutar_todo.sql):
      sqlcmd -S localhost,1435 -U sa -i 13_usuario_aplicacion.sql ^
             -v APP_LOGIN="lapromesa_app" APP_PASSWORD="<contraseña segura>"
-   Luego guarde la cadena de conexión con dotnet user-secrets (nunca en Git).
+   La cadena de conexión se guarda con dotnet user-secrets (nunca en Git).
    ===================================================================== */
 :on error exit
 USE master;

@@ -569,7 +569,7 @@ BEGIN
             FROM compras.OrdenesCompraDetalle AS d
             INNER JOIN #Rec AS r ON r.IdDetalle = d.IdDetalle;
 
-            /* 4. INVENTARIO (tablas temporales inv.*; al integrar se adapta a las de Fernando) */
+            /* 4. INVENTARIO (tablas inv.*; punto de integración con el módulo de Inventarios) */
             UPDATE p
                SET CostoPromedio = ROUND((ISNULL(e.Existencia, 0) * p.CostoPromedio + r.Cantidad * d.CostoUnitario)
                                          / (ISNULL(e.Existencia, 0) + r.Cantidad), 4)

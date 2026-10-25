@@ -1,10 +1,9 @@
 ﻿/* =====================================================================
    LA PROMESA ERP  |  14 - Autenticación (TEMPORAL hasta integrar)
    ---------------------------------------------------------------------
-   Fernando indicó que su parte incluye login, JWT y roles. Mientras no
-   tengamos su repositorio, estas tablas permiten probar los módulos de
-   Compras con seguridad real (access token + refresh token + roles).
-   Al integrar se reemplazan por las de Fernando.
+   Usuarios, roles y sesiones para operar los módulos de Compras con
+   seguridad real (access token + refresh token + roles).
+   Al integrar el login general del ERP se unifican con estas tablas.
      - Contraseñas: hash BCrypt generado por el backend (nunca texto plano).
      - Refresh tokens: se guarda solo el hash SHA-256, con expiración,
        revocación y rotación (cada renovación invalida el anterior).

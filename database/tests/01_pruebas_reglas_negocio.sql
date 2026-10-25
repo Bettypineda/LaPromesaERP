@@ -5,7 +5,7 @@
    Cada prueba intenta una operación PROHIBIDA y verifica que la base
    de datos la rechace con el código de error esperado.
    Las operaciones rechazadas se revierten, así que este script NO
-   modifica los datos y puede ejecutarse las veces que quiera.
+   modifica los datos y es repetible.
    Resultado: una tabla con PASÓ / FALLÓ por prueba y un resumen.
    ===================================================================== */
 SET NOCOUNT ON;

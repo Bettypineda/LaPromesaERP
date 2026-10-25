@@ -1,12 +1,11 @@
 ﻿/* =====================================================================
    LA PROMESA ERP  |  03 - Inventario (TEMPORAL)
    ---------------------------------------------------------------------
-   IMPORTANTE: estas tablas pertenecen al módulo de INVENTARIOS
-   (compañero Fernando). Se crean en el esquema "inv" SOLO para poder
-   probar el proceso de Compras de forma independiente:
+   Tablas mínimas de inventario en el esquema "inv" para que el
+   proceso de Compras funcione de punta a punta:
        Recepción de compra -> entrada a bodega -> existencias + kardex
-   Al integrar, se reemplazan por las tablas reales de Fernando y se
-   ajusta únicamente el bloque "INVENTARIO" de compras.sp_Recepcion_Registrar.
+   Al integrar con el módulo de Inventarios del ERP solo cambia el
+   bloque "INVENTARIO" de compras.sp_Recepcion_Registrar.
    ===================================================================== */
 SET NOCOUNT ON;
 SET ANSI_NULLS ON;

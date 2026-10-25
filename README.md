@@ -37,7 +37,7 @@ Requisitos: Docker Desktop, SQL Server Management Studio, .NET 10 SDK (Visual St
 
 1. **Base de datos**: copiar `.env.example` a `.env`, definir `MSSQL_SA_PASSWORD` y ejecutar `docker compose -f docker/docker-compose.yml up -d` (puerto 1435).
    En SSMS abrir `database/scripts/00_ejecutar_todo.sql`, activar **Modo SQLCMD** y ejecutar (F5). Verificar con `database/tests/`.
-2. **Backend**: configurar secretos con `scripts/configurar-secretos.ps1` (o `appsettings.Development.local.json`, ignorado por Git).
+2. **Backend**: configurar secretos con `scripts/Secretitos.ps1` (o `appsettings.Development.local.json`, ignorado por Git).
    Abrir `backend/LaPromesa/LaPromesa.slnx`, perfil **API + Banco simulado**, F5 → API `http://localhost:5000/swagger`, banco `http://localhost:5100/swagger`.
 3. **Frontend**: `cd frontend/LaPromesa.Web`, `npm install`, `npm run dev` → `http://localhost:5173` (o doble clic en `iniciar-frontend.bat`).
 4. **Pruebas**: colección Postman en `docs/postman`; pruebas E2E con `frontend/LaPromesa.Web/e2e/ejecutar-pruebas-e2e.bat`.
